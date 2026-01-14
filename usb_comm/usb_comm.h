@@ -49,6 +49,7 @@ typedef enum {
 #define USB_COMM_RX_BUF_SIZE    2048
 #define USB_COMM_TX_BUF_SIZE    2048
 #define MAX_RECV_CALLBACKS      10
+#define USB_TO_485_BUF_SIZE     256  /* usb_to_485_buf缓冲区大小 */
 
 /* 类型定义 */
 typedef void (*usb_recv_function)(void *arg, void* data, uint32_t recv_len);

@@ -35,7 +35,7 @@ rule C_COMPILER__TheBox_V3_0_unscanned_RelWithDebInfo
 # Rule for linking C executable.
 
 rule C_EXECUTABLE_LINKER__TheBox_V3_0_RelWithDebInfo
-  command = C:\WINDOWS\system32\cmd.exe /C "$PRE_LINK && C:\Users\Admin\AppData\Local\stm32cube\bundles\gnu-tools-for-stm32\13.3.1+st.9\bin\arm-none-eabi-gcc.exe $FLAGS -mcpu=cortex-m7 -mfpu=fpv5-sp-d16 -mfloat-abi=hard  -T "D:/04_CARTIN/15_MagSensor_v3_Software/TheBox_v3_camke/STM32F722XX_FLASH.ld" --specs=nano.specs -Wl,-Map=TheBox_V3_0.map -Wl,--gc-sections -Wl,--start-group -lc -lm -Wl,--end-group -Wl,--print-memory-usage $LINK_FLAGS $in -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD"
+  command = C:\WINDOWS\system32\cmd.exe /C "$PRE_LINK && C:\Users\Admin\AppData\Local\stm32cube\bundles\gnu-tools-for-stm32\13.3.1+st.9\bin\arm-none-eabi-gcc.exe $FLAGS -mcpu=cortex-m7 -mfpu=fpv5-sp-d16 -mfloat-abi=hard  -T "D:/04_CARTIN/16_MagSensor_v3_Software/TheBox_v3_cmake/STM32F722XX_FLASH.ld" --specs=nano.specs -Wl,-Map=TheBox_V3_0.map -Wl,--gc-sections -Wl,--start-group -lc -lm -Wl,--end-group -Wl,--print-memory-usage $LINK_FLAGS $in -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD"
   description = Linking C executable $TARGET_FILE
   restat = $RESTAT
 
@@ -72,7 +72,7 @@ rule C_COMPILER__USB_Device_Library_unscanned_RelWithDebInfo
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = C:\Users\Admin\AppData\Local\stm32cube\bundles\cmake\4.0.1+st.3\bin\cmake.exe --regenerate-during-build -SD:\04_CARTIN\15_MagSensor_v3_Software\TheBox_v3_camke -BD:\04_CARTIN\15_MagSensor_v3_Software\TheBox_v3_camke\build\RelWithDebInfo
+  command = C:\Users\Admin\AppData\Local\stm32cube\bundles\cmake\4.0.1+st.3\bin\cmake.exe --regenerate-during-build -SD:\04_CARTIN\16_MagSensor_v3_Software\TheBox_v3_cmake -BD:\04_CARTIN\16_MagSensor_v3_Software\TheBox_v3_cmake\build\RelWithDebInfo
   description = Re-running CMake...
   generator = 1
 
@@ -89,7 +89,7 @@ rule CLEAN_ADDITIONAL
 # Rule for cleaning all built files.
 
 rule CLEAN
-  command = C:\Users\Admin\AppData\Local\stm32cube\bundles\ninja\1.13.1+st.1\bin\ninja.exe $FILE_ARG -t clean $TARGETS
+  command = C:\ST\STM32CubeCLT_1.17.0\Ninja\bin\ninja.exe $FILE_ARG -t clean $TARGETS
   description = Cleaning all built files...
 
 
@@ -97,6 +97,6 @@ rule CLEAN
 # Rule for printing all primary targets available.
 
 rule HELP
-  command = C:\Users\Admin\AppData\Local\stm32cube\bundles\ninja\1.13.1+st.1\bin\ninja.exe -t targets
+  command = C:\ST\STM32CubeCLT_1.17.0\Ninja\bin\ninja.exe -t targets
   description = All primary targets available:
 

@@ -41,6 +41,9 @@
 /* USER CODE BEGIN PD */
 // USB端口选择配置：设置为1使用HS，设置为0使用FS（需与usbd_cdc_if.h中保持一致）
 #define USE_USB_HS  1
+
+// 看门狗功能开关：设置为1启用，设置为0禁用（默认关闭）
+#define USE_IWDG    0
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -52,12 +55,16 @@
 
 CRC_HandleTypeDef hcrc;
 
+IWDG_HandleTypeDef hiwdg;
+
 SPI_HandleTypeDef hspi3;
 
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim4;
 
 UART_HandleTypeDef huart4;
+DMA_HandleTypeDef hdma_uart4_rx;
+DMA_HandleTypeDef hdma_uart4_tx;
 
 /* USER CODE BEGIN PV */
 // CRC句柄（在stm32f7xx_hal_msp.c中初始化）
@@ -77,11 +84,13 @@ uint8_t usb_to_485_buf[256];
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_UART4_Init(void);
 static void MX_SPI3_Init(void);
 static void MX_CRC_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_IWDG_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -120,12 +129,14 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_UART4_Init();
   MX_SPI3_Init();
   MX_CRC_Init();
   MX_USB_DEVICE_Init();
   MX_TIM2_Init();
   MX_TIM4_Init();
+  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
   // 初始化USB设备
   MX_USB_DEVICE_Init();
@@ -136,8 +147,11 @@ int main(void)
   // 使能传感器电源
   HAL_GPIO_WritePin(SENS_PWR_EN_GPIO_Port, SENS_PWR_EN_Pin, GPIO_PIN_SET);
 
-  // 等待传感器上电稳定
+  // 等待传感器上电稳定（看门狗超时约8.2秒，1秒延时无需喂狗）
   HAL_Delay(1000);
+  #if USE_IWDG
+  HAL_IWDG_Refresh(&hiwdg);  // 上电延时后喂狗
+  #endif
 
   // 初始化时间戳
   mcu_timestamp = 0;
@@ -162,6 +176,11 @@ int main(void)
 
   // 初始化IMU
   ICM42688_Init();
+
+  // 初始化完成后喂狗（看门狗超时约8.2秒，初始化阶段总耗时<8秒）
+  #if USE_IWDG
+  HAL_IWDG_Refresh(&hiwdg);
+  #endif
 
   // 清空rx_buf，开启DMA空闲中断接收
   HAL_UARTEx_ReceiveToIdle_DMA(&huart4, rx_buf, RX_BUF_SIZE);
@@ -273,6 +292,10 @@ int main(void)
     led_cnt++;
     if(led_cnt > 100) {
       HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+      #if USE_IWDG
+      // 喂看门狗（超时约8.2秒，每500ms喂一次）
+      HAL_IWDG_Refresh(&hiwdg);
+      #endif
       led_cnt = 0;
     }
 
@@ -298,8 +321,9 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 12;
@@ -361,6 +385,35 @@ static void MX_CRC_Init(void)
   /* USER CODE BEGIN CRC_Init 2 */
 
   /* USER CODE END CRC_Init 2 */
+
+}
+
+/**
+  * @brief IWDG Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_IWDG_Init(void)
+{
+
+  /* USER CODE BEGIN IWDG_Init 0 */
+
+  /* USER CODE END IWDG_Init 0 */
+
+  /* USER CODE BEGIN IWDG_Init 1 */
+
+  /* USER CODE END IWDG_Init 1 */
+  hiwdg.Instance = IWDG;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_64;
+  hiwdg.Init.Window = 4095;
+  hiwdg.Init.Reload = 4095;
+  if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN IWDG_Init 2 */
+
+  /* USER CODE END IWDG_Init 2 */
 
 }
 
@@ -526,6 +579,25 @@ static void MX_UART4_Init(void)
   /* USER CODE BEGIN UART4_Init 2 */
 
   /* USER CODE END UART4_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
+  /* DMA1_Stream4_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
 
 }
 

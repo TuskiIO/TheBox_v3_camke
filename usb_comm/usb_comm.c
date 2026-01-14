@@ -134,7 +134,7 @@ void usb_comm_parse_command(uint8_t *data, uint32_t data_len)
 
         case USB_CMD_SET_CFG:
             // 设置传感器配置命令
-            if (cmd_data_len >= 1 && cmd_data_len <= sizeof(usb_to_485_buf)) {
+            if (cmd_data_len >= 1 && cmd_data_len <= USB_TO_485_BUF_SIZE) {
                 memcpy(usb_to_485_buf, &data[6], cmd_data_len);
                 usb_set_sensor_cfg_flag = 1;
             }
