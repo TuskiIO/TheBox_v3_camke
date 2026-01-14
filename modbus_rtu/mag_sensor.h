@@ -15,6 +15,8 @@
 #define INITIAL_GETUID_DELAY_TIME  100   //factor=100ms
 #define ADD_GETUID_DELAY_TIME      1   //factor=100ms
 
+/* DRDY数据就绪模式: 0=关闭(默认), 1=开启 */
+/* 开启后在触发测量后会等待传感器DRDY信号，确保数据转换完成 */
 #define USE_MAG_SENSOR_DRDY         0
 #define ONLY_GET_SENSOR_MAGVAL      1
 

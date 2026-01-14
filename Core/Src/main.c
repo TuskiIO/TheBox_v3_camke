@@ -197,24 +197,27 @@ int main(void)
 
     // 处理配置设置命令
     if(usb_set_sensor_cfg_flag == 1) {
+      // 响应帧头: 0x55 0xAA 0xFF (3字节)
       PC_Trans_Buff[0] = 0x55;
       PC_Trans_Buff[1] = 0xaa;
       PC_Trans_Buff[2] = 0xff;
+
       if(Set_MagSensor_Config(usb_to_485_buf) == HAL_OK) {
         memcpy(&PC_Trans_Buff[3], usb_to_485_buf, usb_to_485_buf[2] + 6);
-        uint16_t crc16 = HAL_CRC_Calculate(&hcrc, (uint32_t *)PC_Trans_Buff, usb_to_485_buf[2] + 6);
-        PC_Trans_Buff[usb_to_485_buf[2] + 6] = (crc16      ) & 0xff;
-        PC_Trans_Buff[usb_to_485_buf[2] + 7] = (crc16 >>  8) & 0xff;
+        uint16_t crc16 = HAL_CRC_Calculate(&hcrc, (uint32_t *)PC_Trans_Buff, usb_to_485_buf[2] + 9);
+        PC_Trans_Buff[usb_to_485_buf[2] + 9] = (crc16      ) & 0xff;
+        PC_Trans_Buff[usb_to_485_buf[2] + 10] = (crc16 >>  8) & 0xff;
         #if USE_USB_HS
-          CDC_Transmit_HS(PC_Trans_Buff, usb_to_485_buf[2] + 8);
+          CDC_Transmit_HS(PC_Trans_Buff, usb_to_485_buf[2] + 11);
         #else
-          CDC_Transmit_FS(PC_Trans_Buff, usb_to_485_buf[2] + 8);
+          CDC_Transmit_FS(PC_Trans_Buff, usb_to_485_buf[2] + 11);
         #endif
       } else {
+        // 错误响应: 帧头 + 3字节错误码
         PC_Trans_Buff[3] = 0x00;
         PC_Trans_Buff[4] = 0x00;
         PC_Trans_Buff[5] = 0x00;
-        uint16_t crc16 = HAL_CRC_Calculate(&hcrc, (uint32_t *)PC_Trans_Buff, 0x06);
+        uint16_t crc16 = HAL_CRC_Calculate(&hcrc, (uint32_t *)PC_Trans_Buff, 6);
         PC_Trans_Buff[6] = (crc16      ) & 0xff;
         PC_Trans_Buff[7] = (crc16 >>  8) & 0xff;
         #if USE_USB_HS
@@ -231,9 +234,11 @@ int main(void)
       for(uint8_t i = 0; i < sensor_num; i++) {
         if(usb_to_485_buf[0] == mag_sensor[i].sensor_pub_cfg.mb_slave_id ||
            usb_to_485_buf[0] == MB_Broadcast_ID) {
+          // 响应帧头: 0x55 0xAA 0xFF (3字节)
           PC_Trans_Buff[0] = 0x55;
           PC_Trans_Buff[1] = 0xaa;
           PC_Trans_Buff[2] = 0xff;
+
           if(Get_MagSensor_Config(&mag_sensor[i]) == HAL_OK) {
             memcpy(&PC_Trans_Buff[3], (uint8_t *)&mag_sensor[i].sensor_pub_cfg, sizeof(SENSOR_Public_Config_t));
             uint16_t crc16 = HAL_CRC_Calculate(&hcrc, (uint32_t *)PC_Trans_Buff, sizeof(SENSOR_Public_Config_t) + 3);
@@ -245,10 +250,11 @@ int main(void)
               CDC_Transmit_FS(PC_Trans_Buff, sizeof(SENSOR_Public_Config_t) + 5);
             #endif
           } else {
+            // 错误响应: 帧头 + 3字节错误码
             PC_Trans_Buff[3] = 0x00;
             PC_Trans_Buff[4] = 0x00;
             PC_Trans_Buff[5] = 0x00;
-            uint16_t crc16 = HAL_CRC_Calculate(&hcrc, (uint32_t *)PC_Trans_Buff, 0x06);
+            uint16_t crc16 = HAL_CRC_Calculate(&hcrc, (uint32_t *)PC_Trans_Buff, 6);
             PC_Trans_Buff[6] = (crc16      ) & 0xff;
             PC_Trans_Buff[7] = (crc16 >>  8) & 0xff;
             #if USE_USB_HS

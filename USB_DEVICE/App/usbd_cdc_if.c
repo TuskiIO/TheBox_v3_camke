@@ -286,6 +286,10 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
+  extern void usb_comm_receive_handler(uint8_t *data, uint32_t data_len);
+  // 调用USB通信处理函数解析命令
+  usb_comm_receive_handler(Buf, *Len);
+
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
   return (USBD_OK);
@@ -458,10 +462,13 @@ static int8_t CDC_Control_HS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_HS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 11 */
+  extern void usb_comm_receive_handler(uint8_t *data, uint32_t data_len);
+  // 调用USB通信处理函数解析命令
+  usb_comm_receive_handler(Buf, *Len);
+
   #if USB_TO_RS485_MODE
   HAL_UART_Transmit(&huart4, Buf, *Len, 100);
   #endif
-  // CDC_Transmit_HS(Buf,*Len);
 
   USBD_CDC_SetRxBuffer(&hUsbDeviceHS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceHS);

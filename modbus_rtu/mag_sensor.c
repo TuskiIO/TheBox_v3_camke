@@ -134,15 +134,27 @@ HAL_StatusTypeDef Set_MagSensor_Config(uint8_t *RS485_buf){
 }
 
 
+/**
+ * @brief 获取所有传感器数据
+ * @note DRDY模式: 启用USE_MAG_SENSOR_DRDY宏后，会等待传感器数据就绪信号
+ * @retval HAL_OK
+ */
 HAL_StatusTypeDef Get_MagSensors_Data(void){
-    #if USE_MAG_SENSOR_DRDY// 等待mag_sensor_DRDY，多个传感器任意一个DRDY后即开始读数据
+    #if USE_MAG_SENSOR_DRDY
+    /* DRDY模式: 等待传感器数据就绪信号，任一传感器就绪即开始读取 */
     uint8_t mag_sensor_rdy = 0;
     do{
         HAL_Delay(1);
+        /* 轮询所有传感器的DRDY状态 */
         for(uint8_t i=0; i<sensor_num; i++){
-            Modbus_CMD50_ReadBytes(mag_sensor[i].sensor_cfg.mb_slave_id, offsetof(MAG_SENSOR_module_t, mag_sensor_DRDY), 0x01, &mag_sensor_rdy);
+            Modbus_CMD50_ReadBytes(
+                mag_sensor[i].sensor_pub_cfg.mb_slave_id,
+                offsetof(MY_SENSOR_module_t, sensor_data) + offsetof(SENSOR_Data_t, sensor_DRDY),
+                0x01,
+                &mag_sensor_rdy
+            );
             if(mag_sensor_rdy == 0x01){
-                break;
+                break;  /* 任一传感器就绪即可 */
             }
         }
     }while(mag_sensor_rdy != 0x01);
@@ -215,17 +227,24 @@ double Update_TimeStamp(void) {
     return mcu_timestamp;
 }
 
+/**
+ * @brief 等待传感器数据就绪信号（DRDY）
+ * @note  轮询所有传感器，直到任一传感器返回DRDY=1
+ * @retval HAL_OK       收到DRDY信号
+ * @retval HAL_TIMEOUT  超时(10000次轮询)
+ * @retval HAL_ERROR    所有传感器超时
+ */
 HAL_StatusTypeDef Get_DataReady(void){
     uint8_t sensor_1_datardy = 0;
     uint8_t sensor_index = 0;
     uint16_t datardy_timeout_cnt = 0;
 
     while(sensor_1_datardy != 1){
-      //wait data ready
+      /* 等待data ready信号 */
       HAL_StatusTypeDef state = Modbus_CMD50_ReadBytes(
-        mag_sensor[sensor_index].sensor_pub_cfg.mb_slave_id, 
-        offsetof(MY_SENSOR_module_t, sensor_data) + offsetof(SENSOR_Data_t,sensor_DRDY), 
-        0x01, 
+        mag_sensor[sensor_index].sensor_pub_cfg.mb_slave_id,
+        offsetof(MY_SENSOR_module_t, sensor_data) + offsetof(SENSOR_Data_t,sensor_DRDY),
+        0x01,
         &sensor_1_datardy
       );
       if(state == HAL_TIMEOUT){
@@ -278,7 +297,7 @@ uint16_t PC_TRANS_Assemble(double PC_TRANS_timestamp)
     // }
     // return ptr;
 
-    // frame header
+    // frame header (3字节): 0x55 0xAA 0xFF
     PC_Trans_Buff[ptr++] = 0x55;
     PC_Trans_Buff[ptr++] = 0xaa;
     PC_Trans_Buff[ptr++] = 0xff;
