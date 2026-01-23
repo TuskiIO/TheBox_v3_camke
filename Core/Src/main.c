@@ -127,10 +127,10 @@ int main(void)
   MX_USB_DEVICE_Init();
   MX_TIM2_Init();
   MX_TIM4_Init();
+  #if USE_IWDG
   MX_IWDG_Init();
+  #endif
   /* USER CODE BEGIN 2 */
-  // 初始化USB设备
-  MX_USB_DEVICE_Init();
 
   // 初始化USB通信层
   usb_comm_init();
@@ -145,12 +145,8 @@ int main(void)
   // 使能传感器电源
   HAL_GPIO_WritePin(SENS_PWR_EN_GPIO_Port, SENS_PWR_EN_Pin, GPIO_PIN_SET);
 
-  // 清空rx_buf，开启DMA空闲中断接收
-  HAL_UARTEx_ReceiveToIdle_DMA(&huart4, rx_buf, RX_BUF_SIZE);
-  __HAL_DMA_DISABLE_IT(&hdma_uart4_rx, DMA_IT_HT);
-
   // 等待传感器上电稳定（看门狗超时约8.2秒，1秒延时无需喂狗）
-  HAL_Delay(1000);
+  HAL_Delay(2000);
   #if USE_IWDG
   HAL_IWDG_Refresh(&hiwdg);  // 上电延时后喂狗
   #endif
@@ -192,7 +188,7 @@ int main(void)
       // 触发测量
       Modbus_CMD60_TriggerMeasurement(MB_Broadcast_ID);
       Update_TimeStamp();
-      HAL_Delay(5);
+      HAL_Delay(4);  // 减少延迟以提升帧率到200Hz
 
       // 获取传感器数据
       Get_MagSensors_Data();
@@ -282,15 +278,13 @@ int main(void)
     // LED指示灯闪烁
     led_cnt++;
     if(led_cnt > 100) {
-      HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+      HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
       #if USE_IWDG
       // 喂看门狗（超时约8.2秒，每500ms喂一次）
       HAL_IWDG_Refresh(&hiwdg);
       #endif
       led_cnt = 0;
     }
-
-    HAL_Delay(5);
   }
   /* USER CODE END 3 */
 }
@@ -366,7 +360,7 @@ static void MX_CRC_Init(void)
   hcrc.Instance = CRC;
   hcrc.Init.DefaultPolynomialUse = DEFAULT_POLYNOMIAL_DISABLE;
   hcrc.Init.DefaultInitValueUse = DEFAULT_INIT_VALUE_ENABLE;
-  hcrc.Init.GeneratingPolynomial = 32771;
+  hcrc.Init.GeneratingPolynomial = 32773;
   hcrc.Init.CRCLength = CRC_POLYLENGTH_16B;
   hcrc.Init.InputDataInversionMode = CRC_INPUTDATA_INVERSION_BYTE;
   hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_ENABLE;
@@ -569,17 +563,20 @@ static void MX_UART4_Init(void)
   huart4.Init.OverSampling = UART_OVERSAMPLING_8;
   huart4.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
   huart4.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  // // 先初始化UART
-  // if (HAL_UART_Init(&huart4) != HAL_OK)
-  // {
-  //   Error_Handler();
-  // }
+  // 先初始化UART
+  if (HAL_UART_Init(&huart4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  // 再初始化RS485模式
   if (HAL_RS485Ex_Init(&huart4, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK)
   {
     Error_Handler();
   }
   /* USER CODE BEGIN UART4_Init 2 */
-
+  // 手动链接DMA句柄（__HAL_LINKDMA可能未生效）
+  huart4.hdmarx = &hdma_uart4_rx;
+  huart4.hdmatx = &hdma_uart4_tx;
   /* USER CODE END UART4_Init 2 */
 
 }
@@ -622,10 +619,11 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, LED2_Pin|LED1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, LED2_Pin|LED1_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(USB_RESETB_GPIO_Port, USB_RESETB_Pin, GPIO_PIN_RESET);
+  /* USB_RESETB: 低电平有效复位，需要设置为高电平释放复位 */
+  HAL_GPIO_WritePin(USB_RESETB_GPIO_Port, USB_RESETB_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(SENS_PWR_EN_GPIO_Port, SENS_PWR_EN_Pin, GPIO_PIN_RESET);

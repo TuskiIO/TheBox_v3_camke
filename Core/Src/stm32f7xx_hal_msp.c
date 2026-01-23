@@ -388,6 +388,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     /* DMA1_Stream4_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
+    /* UART4 interrupt init */
+    HAL_NVIC_SetPriority(UART4_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(UART4_IRQn);
 
     /* USER CODE END UART4_MspInit 1 */
 

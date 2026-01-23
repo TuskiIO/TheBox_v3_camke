@@ -77,10 +77,18 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 HAL_StatusTypeDef Modbus_Master_SendReceive(uint8_t *tx_frame, uint16_t txLen, uint8_t *rx_frame)
 {
     #if RX485_TX_USE_DMA
-    while(huart4.gState != HAL_UART_STATE_READY);
+    // 使用HAL_UART_Abort停止DMA并重置状态（需要UART4中断支持）
+    HAL_UART_Abort(&huart4);
+
     memcpy(tx_buf, tx_frame, txLen);
-    // STM32F722没有D-Cache，不需要刷新
     HAL_StatusTypeDef status = HAL_UART_Transmit_DMA(&huart4, tx_buf, txLen);
+
+    // 等待发送完成
+    while(huart4.gState != HAL_UART_STATE_READY);
+
+    // 重启接收DMA以接收传感器回复
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart4, rx_buf, RX_BUF_SIZE);
+    __HAL_DMA_DISABLE_IT(&hdma_uart4_rx, DMA_IT_HT);
     #else
     HAL_StatusTypeDef status = HAL_UART_Transmit(&huart4, tx_frame, txLen, 100);
     #endif
@@ -221,7 +229,9 @@ HAL_StatusTypeDef Modbus_CMD61_BroadcastReportUID(uint8_t UID8_lower, uint8_t UI
         }
     }
     #if RX485_TX_USE_DMA
-    while(huart4.gState != HAL_UART_STATE_READY);
+    // 使用HAL_UART_Abort停止DMA并重置状态（需要UART4中断支持）
+    HAL_UART_Abort(&huart4);
+
     memcpy(tx_buf, txFrame, txLen);
     // STM32F722没有D-Cache，不需要刷新
     HAL_UART_Transmit_DMA(&huart4, tx_buf, txLen);

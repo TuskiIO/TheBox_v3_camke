@@ -3,3 +3,4 @@ mx.scratch
 !.settings
 # Claude Code temporary directories
 tmpclaude-*
+.claude/settings.local.json
