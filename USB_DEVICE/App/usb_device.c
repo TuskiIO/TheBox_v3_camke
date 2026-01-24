@@ -64,7 +64,9 @@ USBD_HandleTypeDef hUsbDeviceHS;
 void MX_USB_DEVICE_Init(void)
 {
   /* USER CODE BEGIN USB_DEVICE_Init_PreTreatment */
-
+  //上电后重启USB PHY芯片，确保与PC端连接正常
+  HAL_Delay(10); 
+  HAL_GPIO_WritePin(USB_RESETB_GPIO_Port, USB_RESETB_Pin, GPIO_PIN_SET);
   /* USER CODE END USB_DEVICE_Init_PreTreatment */
 
   /* Init Device Library, add supported class and start the library. */

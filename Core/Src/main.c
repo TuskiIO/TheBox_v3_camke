@@ -563,20 +563,12 @@ static void MX_UART4_Init(void)
   huart4.Init.OverSampling = UART_OVERSAMPLING_8;
   huart4.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
   huart4.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  // 先初始化UART
-  if (HAL_UART_Init(&huart4) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  // 再初始化RS485模式
   if (HAL_RS485Ex_Init(&huart4, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK)
   {
     Error_Handler();
   }
   /* USER CODE BEGIN UART4_Init 2 */
-  // 手动链接DMA句柄（__HAL_LINKDMA可能未生效）
-  huart4.hdmarx = &hdma_uart4_rx;
-  huart4.hdmatx = &hdma_uart4_tx;
+
   /* USER CODE END UART4_Init 2 */
 
 }
@@ -622,8 +614,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, LED2_Pin|LED1_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  /* USB_RESETB: 低电平有效复位，需要设置为高电平释放复位 */
-  HAL_GPIO_WritePin(USB_RESETB_GPIO_Port, USB_RESETB_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(USB_RESETB_GPIO_Port, USB_RESETB_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(SENS_PWR_EN_GPIO_Port, SENS_PWR_EN_Pin, GPIO_PIN_RESET);

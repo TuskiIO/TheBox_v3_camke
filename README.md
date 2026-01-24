@@ -33,7 +33,6 @@
 | **UART4** | RS485通信 | 2Mbps, 8N1, DMA接收 |
 | **SPI3** | ICM42688P | Master模式, 8bit数据 |
 | **USB HS** | USB_ULPI | 480MHz高速模式 |
-| **USB FS** | USB_FS | 12MHz全速模式 |
 | **CRC** | 内部 | 硬件CRC16校验 |
 | **TIM2** | 延时定时器 | 1MHz计数频率 |
 | **TIM4** | 辅助定时器 | 用于延时 |
@@ -85,17 +84,6 @@ cmake --build build --config Debug
 # build/TheBox_V3_0.bin    - 二进制文件
 # build/TheBox_V3_0.map    - 内存映射文件
 ```
-
-### 编译配置切换
-
-**USB端口切换（HS/FS）：** 只需修改`usbd_cdc_if.h`中的宏定义
-
-```c
-// USB_DEVICE/App/usbd_cdc_if.h (第56行)
-#define USE_USB_HS  1    // 1=USB HS (480MHz), 0=USB FS (12MHz)
-```
-
-所有使用USB通信的模块（main.c、usb_comm.c等）会自动使用此配置，无需重复定义。
 
 ### 内存占用
 
@@ -603,10 +591,7 @@ TheBox_v3_camke/
 
 | 版本 | 日期 | 说明 |
 |-----|------|-----|
-| V1.0 | 2026-01 | STM32F722移植，USB通信替代UDP |
+| V1.0 | 2026-01 | 板上实测可用版本。删除USB_FS，仅保留USB_HS；优化RS485通讯逻辑；修复多处BUG |
+| V0.1 | 2026-01 | STM32F722移植，USB通信替代UDP |
 
----
 
-## 许可证
-
-Copyright (c) 2026 STMicroelectronics. All rights reserved.

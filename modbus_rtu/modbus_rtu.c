@@ -32,7 +32,6 @@ void delay_us(uint16_t us) {
  * @retval -1   timeout_ms时间内未收到RS485_RX_flag == 1
  */
 static int RS485_RX_flag_Acquire(uint32_t timeout_ms){
-    RS485_RX_flag = 0;
     uint32_t start = HAL_GetTick();
     while (RS485_RX_flag == 0) {
         if((uint32_t)(HAL_GetTick() - start) > timeout_ms){
@@ -75,41 +74,43 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
  * @brief 通用函数：发送请求帧并通过DMA接收响应帧
  */
 HAL_StatusTypeDef Modbus_Master_SendReceive(uint8_t *tx_frame, uint16_t txLen, uint8_t *rx_frame)
-{
-    #if RX485_TX_USE_DMA
-    // 使用HAL_UART_Abort停止DMA并重置状态（需要UART4中断支持）
-    HAL_UART_Abort(&huart4);
-
+{   
+    // 停止当前接收，准备发送
+    HAL_UART_AbortReceive(&huart4);
+    RS485_RX_flag = 0;
     memcpy(tx_buf, tx_frame, txLen);
-    HAL_StatusTypeDef status = HAL_UART_Transmit_DMA(&huart4, tx_buf, txLen);
 
-    // 等待发送完成
-    while(huart4.gState != HAL_UART_STATE_READY);
+    // DMA 发送
+    if(HAL_UART_Transmit_DMA(&huart4, tx_buf, txLen) != HAL_OK)
+    {
+        return HAL_ERROR;
+    }
 
-    // 重启接收DMA以接收传感器回复
+    // 等待发送完成 (TX Complete)
+    // 只有等到 TC=1，才能保证数据发完，可以安全切回 RX
+    while(__HAL_UART_GET_FLAG(&huart4, UART_FLAG_TC) == RESET);
+
+    // 立即开启 IDLE 接收 (覆盖盲区)
+    // 此时从机刚收到数据，正在处理，我们已经准备好接收了
     HAL_UARTEx_ReceiveToIdle_DMA(&huart4, rx_buf, RX_BUF_SIZE);
-    __HAL_DMA_DISABLE_IT(&hdma_uart4_rx, DMA_IT_HT);
-    #else
-    HAL_StatusTypeDef status = HAL_UART_Transmit(&huart4, tx_frame, txLen, 100);
-    #endif
-    if (status != HAL_OK){
-        return status;
-    }
+    __HAL_DMA_DISABLE_IT(&hdma_uart4_rx, DMA_IT_HT); // 关掉半传输中断干扰
 
-    /*boardcast frame no need reply*/
+    /* 广播帧处理 */
     if(tx_frame[0] == MB_Broadcast_ID){
-        memcpy(rx_frame, tx_frame, txLen);
-        return HAL_OK;
+         memcpy(rx_frame, tx_frame, txLen);
+         return HAL_OK;
     }
 
+    // 9. 等待接收完成 (由 ReceiveToIdle 中断触发)
     if (RS485_RX_flag_Acquire(RX_TIMEOUT_MS) != 0){
+        HAL_UART_AbortReceive(&huart4); // 超时停止接收
         return HAL_TIMEOUT;
     }
 
-    if(rx_size>RX_BUF_SIZE){
+    if(rx_size > RX_BUF_SIZE){
         return HAL_ERROR;
     }
-    memcpy(rx_frame,rx_buf,rx_size);
+    memcpy(rx_frame, rx_buf, rx_size);
     return HAL_OK;
 }
 
