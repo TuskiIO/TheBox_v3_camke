@@ -146,7 +146,7 @@ int main(void)
   HAL_GPIO_WritePin(SENS_PWR_EN_GPIO_Port, SENS_PWR_EN_Pin, GPIO_PIN_SET);
 
   // 等待传感器上电稳定（看门狗超时约8.2秒，1秒延时无需喂狗）
-  HAL_Delay(2000);
+  HAL_Delay(1000);
   #if USE_IWDG
   HAL_IWDG_Refresh(&hiwdg);  // 上电延时后喂狗
   #endif
