@@ -1,23 +1,65 @@
 {
-    // 使用 IntelliSense 了解相关属性。 
-    // 悬停以查看现有属性的描述。
-    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         {
-            "type": "stlinkgdbtarget",
-            "request": "launch",
-            "name": "STM32Cube: STM32 Launch ST-Link GDB Server",
-            "origin": "snippet",
+            "name": "STM32 Debug",
             "cwd": "${workspaceFolder}",
-            "preBuild": "${command:st-stm32-ide-debug-launch.build}",
-            "runEntry": "main",
-            "imagesAndSymbols": [
-                {
-                    "imageFileName": "${command:st-stm32-ide-debug-launch.get-projects-binary-from-context1}"
-                }
-            ]
+            "executable": "${workspaceFolder}/build/Debug/TheBox_V3_0.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "stlink",
+            "device": "STM32F722RE",
+            "interface": "swd",
+            "serialNumber": "",
+            "runToMain": true,
+            "preLaunchTask": "CMake: Build Debug",
+            "stm32cubeprogrammer": "${env:STM32CLT_PATH}/STM32CubeProgrammer/bin",
+            "svdFile": "${env:STM32CLT_PATH}/STMicroelectronics_CMSIS_SVD/STM32F722.svd"
+        },
+        {
+            "name": "STM32 Release",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/Release/TheBox_V3_0.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "stlink",
+            "device": "STM32F722RE",
+            "interface": "swd",
+            "serialNumber": "",
+            "runToMain": true,
+            "preLaunchTask": "CMake: Build Release",
+            "stm32cubeprogrammer": "${env:STM32CLT_PATH}/STM32CubeProgrammer/bin",
+            "svdFile": "${env:STM32CLT_PATH}/STMicroelectronics_CMSIS_SVD/STM32F722.svd"
+        },
+        {
+            "name": "STM32 RelWithDebInfo",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/RelWithDebInfo/TheBox_V3_0.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "stlink",
+            "device": "STM32F722RE",
+            "interface": "swd",
+            "serialNumber": "",
+            "runToMain": true,
+            "preLaunchTask": "CMake: Build RelWithDebInfo",
+            "stm32cubeprogrammer": "${env:STM32CLT_PATH}/STM32CubeProgrammer/bin",
+            "svdFile": "${env:STM32CLT_PATH}/STMicroelectronics_CMSIS_SVD/STM32F722.svd"
+        },
+        {
+            "name": "STM32 MinSizeRel",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/MinSizeRel/TheBox_V3_0.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "stlink",
+            "device": "STM32F722RE",
+            "interface": "swd",
+            "serialNumber": "",
+            "runToMain": true,
+            "preLaunchTask": "CMake: Build MinSizeRel",
+            "stm32cubeprogrammer": "${env:STM32CLT_PATH}/STM32CubeProgrammer/bin",
+            "svdFile": "${env:STM32CLT_PATH}/STMicroelectronics_CMSIS_SVD/STM32F722.svd"
         }
     ]
 }

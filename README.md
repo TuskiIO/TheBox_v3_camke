@@ -137,7 +137,7 @@ while(1) {
     ├─► 【数据采集】if(usb_get_sensor_data_flag == 1)
     │     ├─► Modbus_CMD60_TriggerMeasurement(0x00)  // 广播触发测量
     │     ├─► Update_TimeStamp()                      // 更新时间戳
-    │     ├─► HAL_Delay(5) /[DRDY模式]等待传感器DRDY信号
+    │     ├─► HAL_Delay(4) /[DRDY模式]等待传感器DRDY信号
     │     ├─► Get_MagSensors_Data()                   // 读取所有传感器数据
     │     ├─► PC_TRANS_Assemble(timestamp)            // 打包数据
     │     └─► CDC_Transmit_HS/FS(buffer, len)         // USB发送
@@ -152,9 +152,7 @@ while(1) {
     │     ├─► 打包配置数据
     │     └─► USB回复
     │
-    ├─► LED2闪烁 (约500ms周期)
-    │
-    └─► HAL_Delay(5)
+    └─► LED2闪烁 (约500ms周期)
 }
 ```
 

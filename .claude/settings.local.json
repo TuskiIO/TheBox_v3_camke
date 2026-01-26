@@ -29,7 +29,17 @@
       "Bash(\"C:/ST/STM32CubeCLT_1.17.0/GNU-tools-for-STM32/bin/arm-none-eabi-objdump.exe\":*)",
       "Bash(\"C:/ST/STM32CubeCLT_1.17.0/GNU-tools-for-STM32/bin/arm-none-eabi-gdb.exe\" -batch -ex \"target remote localhost:61234\" -ex \"file build/TheBox_V3_0.elf\" -ex \"load\" -ex \"break main.c:159\" -ex \"continue\" -ex \"echo ===Before Check_MagSensors===\\\\n\" -ex \"p huart4.hdmarx\" -ex \"p huart4.hdmatx\" -ex \"continue\" -ex \"break Modbus_Master_SendReceive\" -ex \"continue\" -ex \"echo ===In Modbus_SendReceive===\\\\n\" -ex \"p huart4.gState\" -ex \"p huart4.hdmarx\" -ex \"quit\")",
       "Bash(\"C:/ST/STM32CubeCLT_1.17.0/GNU-tools-for-STM32/bin/arm-none-eabi-gdb.exe\" -batch -ex \"target remote localhost:61234\" -ex \"file build/TheBox_V3_0.elf\" -ex \"load\" -ex \"break main.c:575\" -ex \"continue\" -ex \"echo ===After manual DMA link===\\\\n\" -ex \"p huart4.hdmarx\" -ex \"p huart4.hdmatx\" -ex \"continue\" -ex \"break main.c:159\" -ex \"continue\" -ex \"echo ===At Check_MagSensors===\\\\n\" -ex \"p huart4.hdmarx\" -ex \"quit\")",
-      "Bash(\"C:/ST/STM32CubeCLT_1.17.0/GNU-tools-for-STM32/bin/arm-none-eabi-gdb.exe\" -batch -ex \"target remote localhost:61234\" -ex \"file build/TheBox_V3_0.elf\" -ex \"load\" -ex \"break *0x80064b8\" -ex \"continue\" -ex \"echo ===Before assignment===\\\\n\" -ex \"p/x huart4\" -ex \"p/x huart4+116\" -ex \"step\" -ex \"echo ===After assignment===\\\\n\" -ex \"p/x *\\(uint32_t**\\)\\(0x20001e54+116\\)\" -ex \"p huart4.hdmarx\" -ex \"continue\" -ex \"break main.c:165\" -ex \"continue\" -ex \"echo ===At Check_MagSensors===\\\\n\" -ex \"p huart4.hdmarx\" -ex \"quit\")"
+      "Bash(\"C:/ST/STM32CubeCLT_1.17.0/GNU-tools-for-STM32/bin/arm-none-eabi-gdb.exe\" -batch -ex \"target remote localhost:61234\" -ex \"file build/TheBox_V3_0.elf\" -ex \"load\" -ex \"break *0x80064b8\" -ex \"continue\" -ex \"echo ===Before assignment===\\\\n\" -ex \"p/x huart4\" -ex \"p/x huart4+116\" -ex \"step\" -ex \"echo ===After assignment===\\\\n\" -ex \"p/x *\\(uint32_t**\\)\\(0x20001e54+116\\)\" -ex \"p huart4.hdmarx\" -ex \"continue\" -ex \"break main.c:165\" -ex \"continue\" -ex \"echo ===At Check_MagSensors===\\\\n\" -ex \"p huart4.hdmarx\" -ex \"quit\")",
+      "Bash(reg query:*)",
+      "Bash(code:*)",
+      "Bash(/c/ST/STM32CubeCLT_1.20.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc:*)",
+      "Bash(/c/ST/STM32CubeCLT_1.20.0/CMake/bin/cmake:*)",
+      "Bash(/c/ST/STM32CubeCLT_1.20.0/Ninja/ninja:*)",
+      "Bash(/c/ST/STM32CubeCLT_1.20.0/Ninja/bin/ninja:*)",
+      "Bash(export PATH:*)",
+      "Bash(arm-none-eabi-gcc:*)",
+      "Bash(cmd /c \"echo %STM32CLT_PATH%\")",
+      "WebSearch"
     ]
   }
 }

@@ -1,0 +1,172 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CMake: Configure Debug",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--preset", "Debug"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "CMake: Configure Release",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--preset", "Release"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "CMake: Configure RelWithDebInfo",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--preset", "RelWithDebInfo"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "CMake: Configure MinSizeRel",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--preset", "MinSizeRel"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "CMake: Build Debug",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build", "--preset", "Debug"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "CMake: Build Release",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build", "--preset", "Release"
+            ],
+            "group": "build",
+            "problemMatcher": ["$gcc"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "CMake: Build RelWithDebInfo",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build", "--preset", "RelWithDebInfo"
+            ],
+            "group": "build",
+            "problemMatcher": ["$gcc"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "CMake: Build MinSizeRel",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build", "--preset", "MinSizeRel"
+            ],
+            "group": "build",
+            "problemMatcher": ["$gcc"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Flash: Debug",
+            "type": "shell",
+            "command": "${env:STM32CLT_PATH}\\STM32CubeProgrammer\\bin\\STM32_Programmer_CLI.exe",
+            "args": [
+                "-c", "port=SWD",
+                "-w", "${workspaceFolder}/build/Debug/TheBox_V3_0.hex", "0x08000000",
+                "-v", "-rst"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Flash: Release",
+            "type": "shell",
+            "command": "${env:STM32CLT_PATH}\\STM32CubeProgrammer\\bin\\STM32_Programmer_CLI.exe",
+            "args": [
+                "-c", "port=SWD",
+                "-w", "${workspaceFolder}/build/Release/TheBox_V3_0.hex", "0x08000000",
+                "-v", "-rst"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Flash: RelWithDebInfo",
+            "type": "shell",
+            "command": "${env:STM32CLT_PATH}\\STM32CubeProgrammer\\bin\\STM32_Programmer_CLI.exe",
+            "args": [
+                "-c", "port=SWD",
+                "-w", "${workspaceFolder}/build/RelWithDebInfo/TheBox_V3_0.hex", "0x08000000",
+                "-v", "-rst"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Flash: MinSizeRel",
+            "type": "shell",
+            "command": "${env:STM32CLT_PATH}\\STM32CubeProgrammer\\bin\\STM32_Programmer_CLI.exe",
+            "args": [
+                "-c", "port=SWD",
+                "-w", "${workspaceFolder}/build/MinSizeRel/TheBox_V3_0.hex", "0x08000000",
+                "-v", "-rst"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        }
+    ]
+}
