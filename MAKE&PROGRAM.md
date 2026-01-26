@@ -13,7 +13,8 @@
 5. [编译项目](#5-编译项目)
 6. [烧录程序](#6-烧录程序)
 7. [调试程序](#7-调试程序)
-8. [常见问题](#8-常见问题)
+8. [多PC协作](#8-多pc协作)
+9. [常见问题](#9-常见问题)
 
 ---
 
@@ -328,7 +329,85 @@ Memory programming completed.
 
 ---
 
-## 8. 常见问题
+## 8. 多PC协作
+
+### 8.1 .gitignore 配置说明
+
+项目已配置 `.gitignore` 以支持多台 PC 协作开发：
+
+| 文件类型 | 是否同步 | 说明 |
+|---------|---------|------|
+| `build/**/CMakeCache.txt` | ❌ 不同步 | CMake 缓存（含 PC 特定路径） |
+| `build/**/CMakeFiles/` | ❌ 不同步 | CMake 生成的配置文件 |
+| `build/**/.cmake/` | ❌ 不同步 | CMake API 文件 |
+| `build/**/.ninja_*` | ❌ 不同步 | Ninja 构建日志 |
+| `build/**/build.ninja` | ❌ 不同步 | Ninja 构建文件 |
+| `build/**/*.elf` | ✅ 同步 | 可执行文件（调试用） |
+| `build/**/*.hex` | ✅ 同步 | Intel HEX 格式（烧录用） |
+| `build/**/*.bin` | ✅ 同步 | 二进制文件 |
+| `build/**/*.map` | ✅ 同步 | 内存映射文件 |
+
+### 8.2 首次拉取代码
+
+在新 PC 上首次克隆项目后：
+
+```bash
+# 1. 克隆项目
+git clone <repository-url> TheBox_v3_cmake
+cd TheBox_v3_cmake
+
+# 2. 配置 CMake（每台 PC 各自执行）
+cmake --preset=RelWithDebInfo
+
+# 3. 编译项目
+cmake --build build --preset=RelWithDebInfo
+```
+
+### 8.3 日常协作流程
+
+**PC-A 编译后提交：**
+```bash
+# 编译并提交烧录文件
+cmake --build build --preset=RelWithDebInfo
+git add build/RelWithDebInfo/TheBox_V3_0.elf
+git add build/RelWithDebInfo/TheBox_V3_0.hex
+git commit -m "build: update firmware"
+git push
+```
+
+**PC-B 拉取更新：**
+```bash
+# 拉取代码和烧录文件
+git pull
+
+# 如果需要本地调试，重新编译
+cmake --preset=RelWithDebInfo
+cmake --build build --preset=RelWithDebInfo
+```
+
+### 8.4 注意事项
+
+1. **路径冲突**：build 目录的配置文件已忽略，避免不同 PC 路径不同导致的冲突
+2. **配置文件**：.gitignore 中排除的文件不会同步，每台 PC 各自维护
+3. **烧录文件**：.elf/.hex 等文件可以提交，方便团队共享编译结果
+4. **重新配置**：切换 PC 或修改工具链后，删除 build 目录重新配置
+
+### 8.5 解决路径冲突
+
+如果遇到 CMake 缓存路径错误：
+
+```bash
+# 删除 build 目录
+rm -rf build/
+
+# 重新配置
+cmake --preset=RelWithDebInfo
+cmake --build build --preset=RelWithDebInfo
+```
+
+---
+
+## 9. 常见问题
 
 ### 8.1 编译错误
 
@@ -406,7 +485,7 @@ Memory programming completed.
 
 ---
 
-## 9. 附录
+## 10. 附录
 
 ### 9.1 项目信息
 
@@ -463,5 +542,6 @@ TheBox_v3_cmake/
 
 ---
 
-**文档版本**: v2.0
+**文档版本**: v2.1
 **更新日期**: 2026-01-26
+**更新内容**: 新增第8节"多PC协作"说明

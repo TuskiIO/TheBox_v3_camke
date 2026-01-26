@@ -215,17 +215,10 @@ USBD_StatusTypeDef USBD_RegisterClass(USBD_HandleTypeDef *pdev, USBD_ClassTypeDe
   pdev->pClass[0] = pclass;
 
   /* Get Device Configuration Descriptor */
-#ifdef USE_USB_HS
   if (pdev->pClass[pdev->classId]->GetHSConfigDescriptor != NULL)
   {
     pdev->pConfDesc = (void *)pdev->pClass[pdev->classId]->GetHSConfigDescriptor(&len);
   }
-#else /* Default USE_USB_FS */
-  if (pdev->pClass[pdev->classId]->GetFSConfigDescriptor != NULL)
-  {
-    pdev->pConfDesc = (void *)pdev->pClass[pdev->classId]->GetFSConfigDescriptor(&len);
-  }
-#endif /* USE_USB_FS */
 
   /* Increment the NumClasses */
   pdev->NumClasses++;
@@ -278,11 +271,7 @@ USBD_StatusTypeDef USBD_RegisterClassComposite(USBD_HandleTypeDef *pdev, USBD_Cl
   if (ret == USBD_OK)
   {
     /* Get Device Configuration Descriptor */
-#ifdef USE_USB_HS
     pdev->pConfDesc = USBD_CMPSIT.GetHSConfigDescriptor(&len);
-#else /* Default USE_USB_FS */
-    pdev->pConfDesc = USBD_CMPSIT.GetFSConfigDescriptor(&len);
-#endif /* USE_USB_FS */
   }
 
   return ret;

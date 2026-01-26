@@ -62,11 +62,7 @@ int usb_comm_send(void *data, uint32_t data_len)
     }
 
     // 调用USB CDC发送函数
-    #if USE_USB_HS
-        if (CDC_Transmit_HS((uint8_t*)data, (uint16_t)data_len) == USBD_OK) {
-    #else
-        if (CDC_Transmit_FS((uint8_t*)data, (uint16_t)data_len) == USBD_OK) {
-    #endif
+    if (CDC_Transmit_HS((uint8_t*)data, (uint16_t)data_len) == USBD_OK) {
         return (int)data_len;
     }
 

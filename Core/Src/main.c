@@ -195,11 +195,7 @@ int main(void)
 
       // 打包并发送到USB
       uint16_t PC_buf_size = PC_TRANS_Assemble(mcu_timestamp);
-      #if USE_USB_HS
-        CDC_Transmit_HS(PC_Trans_Buff, PC_buf_size);
-      #else
-        CDC_Transmit_FS(PC_Trans_Buff, PC_buf_size);
-      #endif
+      CDC_Transmit_HS(PC_Trans_Buff, PC_buf_size);
     }
 
     // 处理配置设置命令
@@ -214,11 +210,7 @@ int main(void)
         uint16_t crc16 = HAL_CRC_Calculate(&hcrc, (uint32_t *)PC_Trans_Buff, usb_to_485_buf[2] + 9);
         PC_Trans_Buff[usb_to_485_buf[2] + 9] = (crc16      ) & 0xff;
         PC_Trans_Buff[usb_to_485_buf[2] + 10] = (crc16 >>  8) & 0xff;
-        #if USE_USB_HS
-          CDC_Transmit_HS(PC_Trans_Buff, usb_to_485_buf[2] + 11);
-        #else
-          CDC_Transmit_FS(PC_Trans_Buff, usb_to_485_buf[2] + 11);
-        #endif
+        CDC_Transmit_HS(PC_Trans_Buff, usb_to_485_buf[2] + 11);
       } else {
         // 错误响应: 帧头 + 3字节错误码
         PC_Trans_Buff[3] = 0x00;
@@ -227,11 +219,7 @@ int main(void)
         uint16_t crc16 = HAL_CRC_Calculate(&hcrc, (uint32_t *)PC_Trans_Buff, 6);
         PC_Trans_Buff[6] = (crc16      ) & 0xff;
         PC_Trans_Buff[7] = (crc16 >>  8) & 0xff;
-        #if USE_USB_HS
-          CDC_Transmit_HS(PC_Trans_Buff, 8);
-        #else
-          CDC_Transmit_FS(PC_Trans_Buff, 8);
-        #endif
+        CDC_Transmit_HS(PC_Trans_Buff, 8);
       }
       usb_set_sensor_cfg_flag = 0;
     }
@@ -251,11 +239,7 @@ int main(void)
             uint16_t crc16 = HAL_CRC_Calculate(&hcrc, (uint32_t *)PC_Trans_Buff, sizeof(SENSOR_Public_Config_t) + 3);
             PC_Trans_Buff[sizeof(SENSOR_Public_Config_t) + 3] = (crc16      ) & 0xff;
             PC_Trans_Buff[sizeof(SENSOR_Public_Config_t) + 4] = (crc16 >>  8) & 0xff;
-            #if USE_USB_HS
-              CDC_Transmit_HS(PC_Trans_Buff, sizeof(SENSOR_Public_Config_t) + 5);
-            #else
-              CDC_Transmit_FS(PC_Trans_Buff, sizeof(SENSOR_Public_Config_t) + 5);
-            #endif
+            CDC_Transmit_HS(PC_Trans_Buff, sizeof(SENSOR_Public_Config_t) + 5);
           } else {
             // 错误响应: 帧头 + 3字节错误码
             PC_Trans_Buff[3] = 0x00;
@@ -264,11 +248,7 @@ int main(void)
             uint16_t crc16 = HAL_CRC_Calculate(&hcrc, (uint32_t *)PC_Trans_Buff, 6);
             PC_Trans_Buff[6] = (crc16      ) & 0xff;
             PC_Trans_Buff[7] = (crc16 >>  8) & 0xff;
-            #if USE_USB_HS
-              CDC_Transmit_HS(PC_Trans_Buff, 8);
-            #else
-              CDC_Transmit_FS(PC_Trans_Buff, 8);
-            #endif
+            CDC_Transmit_HS(PC_Trans_Buff, 8);
           }
         }
       }

@@ -327,20 +327,12 @@ static int8_t CDC_TransmitCplt_HS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
 #define USB_PRINTF_LEN_MAX 100
 static uint8_t char_buf[USB_PRINTF_LEN_MAX];
 void usb_printf(const char* format,...){
-  #if USE_USB_HS
-    if(hUsbDeviceHS.dev_state != USBD_STATE_CONFIGURED || !host_port_open) return;
-  #else
-    if(hUsbDeviceFS.dev_state != USBD_STATE_CONFIGURED || !host_port_open) return;
-  #endif
+  if(hUsbDeviceHS.dev_state != USBD_STATE_CONFIGURED || !host_port_open) return;
   va_list args;
   va_start(args, format);
   uint32_t transmit_len = vsnprintf((char*) char_buf, USB_PRINTF_LEN_MAX, format, args);
   va_end(args);
-  #if USE_USB_HS
-    while (CDC_Transmit_HS((uint8_t*)char_buf, (uint16_t)transmit_len) == USBD_BUSY);
-  #else
-    while (CDC_Transmit_FS((uint8_t*)char_buf, (uint16_t)transmit_len) == USBD_BUSY);
-  #endif
+  while (CDC_Transmit_HS((uint8_t*)char_buf, (uint16_t)transmit_len) == USBD_BUSY);
 }
 /* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
 

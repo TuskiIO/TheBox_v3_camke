@@ -429,7 +429,7 @@ if(usb_set_sensor_cfg_flag == 1) {
 - **虚拟串口**: CDC类，驱动自动识别
 - **发送缓冲**: 2048字节 (APP_TX_DATA_SIZE)
 - **接收缓冲**: 2048字节 (APP_RX_DATA_SIZE)
-- **HS/FS切换**: 修改`usbd_cdc_if.h`中的`USE_USB_HS`宏（1=HS, 0=FS）
+- **USB模式**: USB HS (高速模式)
 
 ### 4. 传感器地址
 
