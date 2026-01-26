@@ -160,6 +160,19 @@ int main(void)
     state = Get_MagSensors_Plugged();
   };
 
+  #if 0
+  //配置传感器config
+  uint8_t tempbuff[5];
+  //设置传感器波特率.
+  uint32_t tempbaudrate = 2000000;
+  memcpy((void *restrict)&tempbuff[0], (const void *restrict)&tempbaudrate, sizeof(tempbaudrate));
+  //设置传感器采样模式. 0x00:Continuous Mode, 0x01:On Trigger Mode.
+  tempbuff[4] = 0x01;
+
+  Modbus_CMD51_WriteBytes(MB_Broadcast_ID, 0x01, 0x05,tempbuff);
+  HAL_Delay(500);
+  #endif
+
   // 更新配置
   for(uint8_t i = 0; i < sensor_num; i++) {
     Get_MagSensor_Config(&mag_sensor[i]);
